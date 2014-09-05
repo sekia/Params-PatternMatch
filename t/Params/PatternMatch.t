@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use Carp ();
 use Test::More;
 
 BEGIN {
@@ -11,6 +12,7 @@ sub factorial {
     my $n;
     case 0 => then { 1 };
     case $n => then { $n * factorial($n - 1) };
+    otherwise { Carp::croak('factorial: requires exactly 1 argument.') };
   };
 }
 
@@ -23,6 +25,9 @@ is factorial(5), 120;
 my $n = 5;
 is factorial($n), 120;
 is $n, 5, 'Argument is never modified unless you explicitly assign.';
+
+eval { factorial(1 .. 10) };
+like $@, qr/factorial: requires exactly 1 argument./;
 
 sub set_42 {
   match @_ => as {

@@ -90,7 +90,8 @@ sub values { wantarray ? @{ $_[0] } : $_[0][0] }
 
 =head1 SYNOPSIS
 
-  use Params::PatternMatch qw/as case match rest then/;
+  use Carp ();
+  use Params::PatternMatch qw/as case match otherwise rest then/;
   
   sub sum {
     match @_ => as {
@@ -101,6 +102,18 @@ sub values { wantarray ? @{ $_[0] } : $_[0][0] }
   }
   
   say sum(1 .. 10);  # 55
+  
+  sub factorial {
+    match @_ => as {
+      my $n;
+      case 0 => then { 1 };
+      case $n => then { $n * factorial($n - 1) };
+      otherwise { Carp::croak('factorial: requires exactly 1 argument.') };
+    };
+  }
+  
+  say factorial(5);  # 120
+  say factorial(1 .. 10);  # Error
 
 =head1 DESCRIPTION
 
@@ -112,7 +125,7 @@ Note that the implementation is not tail call-optimized; Unlike real functional 
 
 =head1 FUNCTIONS
 
-None of them is exported by default. So you need to C<import> explicitly.
+None of them liseted below are exported by default. So you need to C<import> explicitly.
 
 =head2 as(\&block), then(\&block)
 
@@ -137,7 +150,7 @@ Slurps all the rest unbound arguments.
 
 =head1 PATTERN MATCH RULE
 
-Now I'll describe how the patterm match performs. C<match>'s arguments are element-wise-compared with C<case>'s pattern.
+Now I'll describe how the pattern match performs. C<match>'s arguments are element-wise-compared with C<case>'s pattern.
 
 If an element in pattern is:
 
